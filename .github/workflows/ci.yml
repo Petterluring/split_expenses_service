@@ -23,7 +23,8 @@ jobs:
       - name: Setup gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Build and test with gradle
-        run: | 
-          ./gradlew build
-          ./gradlew test
+      - name: Build with gradle
+        run: ./gradlew build
+
+      - name: Test with gradle
+        run: ./gradlew test
