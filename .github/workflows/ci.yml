@@ -1,0 +1,16 @@
+name: build_project
+
+on:
+  push:
+    branches: [cicd/**]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run a command
+        run: echo "Hello there"
