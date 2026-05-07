@@ -13,9 +13,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v5
 
-      - name: Install java
+      - name: Setup java
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
       - run: java --version
+
+      - name: Setup gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build and test with gradle
+        run: | 
+          ./gradlew build
+          ./gradlew test
