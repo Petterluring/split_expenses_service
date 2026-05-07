@@ -3,10 +3,12 @@ name: build_project
 on:
   push:
     branches:
-      - 'cicd/**'
+      - 'feature/**'
+      - 'dev'
+      - 'main'
 
 jobs:
-  build:
+  gradle_build_and_test:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,7 +20,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - run: java --version
 
       - name: Setup gradle
         uses: gradle/actions/setup-gradle@v6
