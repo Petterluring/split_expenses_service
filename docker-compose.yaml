@@ -1,7 +1,7 @@
 
 
 services:
-  service:
+  spring-boot-server:
     container_name: spring-boot-container
     image: spring-boot-app
     build: ./
@@ -10,3 +10,29 @@ services:
     ports:
       - ${SPRING_BOOT_PORT}:${SPRING_BOOT_PORT}
     command: ["--server.port=${SPRING_BOOT_PORT}"]
+    depends_on:
+      - mongodb-server
+    networks:
+      - backend
+
+  mongodb-server:
+    image: mongodb/mongodb-community-server:latest
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - ${MONGO_DB_PORT}:${MONGO_DB_PORT}
+    volumes:
+      - split_cost:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    networks:
+      - backend
+
+volumes:
+  split_cost:
+    external: true
+
+networks:
+  backend:
+    driver: bridge
