@@ -7,3 +7,4 @@ build
 bin/
 # Ignore Kotlin plugin data
 .kotlin
+.env

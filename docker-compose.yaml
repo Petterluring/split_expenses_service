@@ -1,0 +1,12 @@
+
+
+services:
+  service:
+    container_name: spring-boot-container
+    image: spring-boot-app
+    build: ./
+    expose:
+      - ${SPRING_BOOT_PORT}
+    ports:
+      - ${SPRING_BOOT_PORT}:${SPRING_BOOT_PORT}
+    command: ["--server.port=${SPRING_BOOT_PORT}"]
