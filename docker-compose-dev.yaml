@@ -9,10 +9,14 @@ services:
       - ${MONGO_DB_PORT}:${MONGO_DB_PORT}
     volumes:
       - split_cost:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--host", "localhost", "--port", "${MONGO_DB_PORT}", "--quiet", "--eval", "db.adminCommand({ping:1})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-
 
 volumes:
   split_cost:
