@@ -1,16 +1,13 @@
 package com.entry.repository
 
-import org.springframework.stereotype.Repository
-
+import com.entry.model.Health
+import org.springframework.data.mongodb.repository.MongoRepository
 
 /**
  * Fake repository that simulates communication with a database
  * by simply returning a prefixed value. This repository is for demonstrative purposes.
  */
-@Repository
-class HealthRepository {
+interface HealthRepository : MongoRepository<Health, String> {
 
-    fun findHealth(): String {
-        return "UP"
-    }
+    fun findByStatus(status: String): Health?
 }

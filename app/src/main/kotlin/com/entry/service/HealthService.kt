@@ -12,8 +12,15 @@ class HealthService(
 
 
     fun getHealth(): HealthDto {
-        return HealthDto(
-            status = healthRepository.findHealth()
-        )
+        val health = healthRepository.findByStatus("UP")
+        return if (health != null) {
+            HealthDto(
+                status = health.status,
+            )
+        } else {
+            HealthDto(
+                status = "DOWN"
+            )
+        }
     }
 }
