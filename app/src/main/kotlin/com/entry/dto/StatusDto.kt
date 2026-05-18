@@ -1,5 +1,5 @@
 package com.entry.dto
 
-data class HealthDto(
+data class StatusDto(
     val status: String
 )
