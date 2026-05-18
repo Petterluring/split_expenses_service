@@ -6,18 +6,52 @@ services:
     container_name: mongodb
     restart: unless-stopped
     ports:
-      - ${MONGO_DB_PORT}:${MONGO_DB_PORT}
+      - ${MONGO_DB_PORT}:27017
     volumes:
-      - split_cost:/data/db
+      - split_cost_db:/data/db
+      - split_cost_config:/data/configdb
     healthcheck:
-      test: ["CMD", "mongosh", "--host", "localhost", "--port", "${MONGO_DB_PORT}", "--quiet", "--eval", "db.adminCommand({ping:1})"]
+      test: [
+        "CMD", "mongosh", "--host", "localhost", "--port", "27017",
+        "--quiet", "--eval", "db.adminCommand({ping:1})"
+      ]
       interval: 30s
       timeout: 10s
       retries: 3
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    networks:
+      - backend
+
+  init-db:
+    image: alpine/mongosh
+    depends_on:
+      mongodb-server:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - ./db_scripts/init.js:/scripts/init.js:ro
+    networks:
+      - backend
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      SPLIT_EXPENSE_DB: ${SPLIT_EXPENSE_DB}
+      SPLIT_EXPENSE_DB_USER: ${SPLIT_EXPENSE_DB_USER}
+      SPLIT_EXPENSE_DB_PASSWORD: ${SPLIT_EXPENSE_DB_PASSWORD}
+    command: ["mongosh",
+              "mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb-server:27017/admin",
+              "/scripts/init.js"
+    ]
 
 volumes:
-  split_cost:
+  split_cost_db:
     external: true
+  split_cost_config:
+    external: true
+
+networks:
+  backend:
+    driver: bridge
+
