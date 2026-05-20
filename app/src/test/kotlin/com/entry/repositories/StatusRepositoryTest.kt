@@ -39,7 +39,5 @@ class StatusRepositoryTest {
             repository.testMongoConnection(),
             "Failed to connect to mongo"
             )
-
     }
-
 }
