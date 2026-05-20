@@ -1,0 +1,18 @@
+Controller tests:
+- Use @WebMvcTest
+- Mock the service
+- Test HTTP status codes, request validation, JSON responses
+
+Service tests:
+- Plain JUnit tests
+- Mock repositories and other dependencies
+- Test business rules and edge cases
+
+Repository tests:
+- Use @DataJpaTest
+- Prefer real database behavior if possible
+- Test custom queries
+
+Integration tests:
+- Use @SpringBootTest
+- Test the full flow for the most important use cases
