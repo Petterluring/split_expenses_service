@@ -1,6 +1,7 @@
 package com.entry.controller
 
 import com.entry.constants.Status
+import com.entry.dto.error.ErrorResponseDto
 import com.entry.dto.user.CreateUserRequestDto
 import com.entry.dto.user.UserResponseDto
 import com.entry.service.UserService
@@ -18,45 +19,52 @@ class UserController(
     private val userService: UserService
 ) {
 
-
     @PostMapping("/create")
     fun createUser(
         @RequestBody createUserRequestDto: CreateUserRequestDto
-    ): ResponseEntity<UserResponseDto> {
+    ): ResponseEntity<Any> {
 
         val username = createUserRequestDto.username
-        when (val status = userService.create(createUserRequestDto)) {
+        when (userService.create(createUserRequestDto)) {
             Status.CREATED -> {
                 return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(UserResponseDto(
-                        username,
-                        Status.CREATED.name.lowercase()
-                    ))
+                    .body(
+                        UserResponseDto(
+                            username,
+                            Status.CREATED.name.lowercase()
+                        )
+                    )
             }
+
             Status.EXISTS -> {
                 return ResponseEntity
                     .status(HttpStatus.CONFLICT)
-                    .body(UserResponseDto(
-                        createUserRequestDto.username,
-                        "User or password already exists"
-                    ))
+                    .body(
+                        ErrorResponseDto(
+                            "User or password already exists"
+                        )
+                    )
             }
+
             Status.INVALID -> {
                 return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(UserResponseDto(
-                        username,
-                        "Invalid username or password"
-                    ))
+                    .body(
+                        ErrorResponseDto(
+                            "Invalid username or password"
+                        )
+                    )
             }
+
             else -> {
                 return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(UserResponseDto(
-                        username,
-                        "Internal Server Error"
-                    ))
+                    .body(
+                        ErrorResponseDto(
+                            "Internal Server Error"
+                        )
+                    )
             }
         }
     }
