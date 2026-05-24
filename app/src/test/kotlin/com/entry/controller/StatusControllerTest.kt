@@ -16,10 +16,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 class StatusControllerTest {
 
     @Autowired
-    lateinit var mvc: MockMvc
+    private lateinit var mvc: MockMvc
 
     @MockitoBean
-    lateinit var statusService: StatusService
+    private lateinit var statusService: StatusService
 
     @Test
     fun `can get status`() {
