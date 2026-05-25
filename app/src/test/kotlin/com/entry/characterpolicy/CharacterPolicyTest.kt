@@ -2,89 +2,136 @@ package com.entry.characterpolicy
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertEquals
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CharacterPolicyTest {
-    private val policy =
-        CharacterPolicy(
-            minlength = 10,
-            regexPattern = "aaaaaaaaaa",
-        )
+    private val minLength = 4
 
     @Test
-    fun `can validate minLength`() {
-        for (i in -1..0) {
-            val exception =
-                assertThrows<IllegalArgumentException> {
-                    CharacterPolicy(
-                        minlength = i,
-                        regexPattern = "abc",
-                    )
-                }
-            assertEquals("minlength must be greater than 0", exception.message, "expected and actual are not equal")
+    fun `can validate character configuration`() {
+        assertThrows<IllegalArgumentException> {
+            CharacterPolicy(
+                minLength = minLength,
+                includeLowercase = false,
+                includeUppercase = false,
+                includeNumbers = false,
+                includeSymbols = false,
+            )
         }
     }
 
-    @Test
-    fun `can validate regexPattern`() {
-        val exception =
-            assertThrows<IllegalArgumentException> {
-                CharacterPolicy(
-                    minlength = 1,
-                    regexPattern = "",
-                )
-            }
-
-        assertEquals("regex must not be blank", exception.message, "expected and actual are not equal")
+    @ParameterizedTest
+    @ValueSource(
+        ints = [
+            -2, -1, 0,
+        ],
+    )
+    fun `can validate minLength`(minLength: Int) {
+        assertThrows<IllegalArgumentException> {
+            CharacterPolicy(minLength)
+        }
     }
 
-    @Test
-    fun `can validate required string length`() {
-        val notTrueMessage = "string has too few characters"
-        val isTrueMessage = "string has too many characters"
-        assertTrue(policy.hasMinLength("aaaaaaaaaa"), message = notTrueMessage)
-        assertTrue(policy.hasMinLength("aaaaaaaaaaa"), message = notTrueMessage)
-
-        assertFalse(policy.hasMinLength("aaa"), message = isTrueMessage)
-        assertFalse(policy.hasMinLength("aaaa"), message = isTrueMessage)
-    }
-
-    @Test
-    fun `can validate string on required regex pattern`() {
-        val invalidRegexPatternMessage = "Regex pattern is invalid"
-        val validRegexPatternMessage = "Regex pattern is valid"
-        assertTrue(policy.matchesRegex("aaaaaaaaaa"), message = invalidRegexPatternMessage)
-        assertFalse(policy.matchesRegex("ab"), message = invalidRegexPatternMessage)
-        assertFalse(policy.matchesRegex("abweffew"), message = invalidRegexPatternMessage)
-
-        val newPolicy =
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "roger",
+            "roger_killman",
+            "this_is_a_test",
+        ],
+    )
+    fun `can validate lowercase configuration`(string: String) {
+        val policy =
             CharacterPolicy(
-                minlength = 10,
-                regexPattern = "[A-Z]+",
+                minLength = minLength,
+                includeLowercase = true,
+                includeUppercase = false,
+                includeNumbers = false,
+                includeSymbols = false,
             )
-
-        assertTrue(newPolicy.matchesRegex("ASTA"), message = invalidRegexPatternMessage)
-        assertTrue(newPolicy.matchesRegex("BUKA"), message = invalidRegexPatternMessage)
-        assertTrue(newPolicy.matchesRegex("ROGER"), message = invalidRegexPatternMessage)
-
-        assertFalse(newPolicy.matchesRegex("Roger"), message = validRegexPatternMessage)
-        assertFalse(newPolicy.matchesRegex("KuNKa"), message = validRegexPatternMessage)
-        assertFalse(newPolicy.matchesRegex("1234"), message = validRegexPatternMessage)
+        assertTrue(policy.matches(string))
     }
 
-    @Test
-    fun `can validate string on required regex pattern and length`() {
-        val invalidMessage = "string does not follow policy"
-        val validMessage = "string does follow policy"
-        assertTrue(policy.followsPolicy("aaaaaaaaaa"), invalidMessage)
-        assertFalse(policy.followsPolicy("aaaaa"), validMessage)
-        assertFalse(policy.followsPolicy("aaaaaaaaaaa"), validMessage)
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "rogerR!!?oger",
+            "roger_killm43anROGER",
+            "tHis_is_A_tes234t",
+        ],
+    )
+    fun `can validate incorrect lowercase and uppercase configuration`(string: String) {
+        val policy =
+            CharacterPolicy(
+                minLength = minLength,
+                includeLowercase = true,
+                includeUppercase = true,
+                includeNumbers = false,
+                includeSymbols = false,
+            )
+        assertFalse(policy.matches(string))
     }
 
-    @Test
-    fun `can get regex pattern`() {
-        assertEquals("aaaaaaaaaa", policy.regexPattern)
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "rogerRoger",
+            "roger_killmanROGER",
+            "tHis_is_A_test",
+        ],
+    )
+    fun `can validate lowercase and uppercase configuration`(string: String) {
+        val policy =
+            CharacterPolicy(
+                minLength = minLength,
+                includeLowercase = true,
+                includeUppercase = true,
+                includeNumbers = false,
+                includeSymbols = false,
+            )
+        assertTrue(policy.matches(string))
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "rogerRoger123_22",
+            "roger_killmanROGER_4434",
+            "tHis_i342s_A_te22st",
+        ],
+    )
+    fun `can validate lowercase, uppercase and number configuration`(string: String) {
+        val policy =
+            CharacterPolicy(
+                minLength = minLength,
+                includeLowercase = true,
+                includeUppercase = true,
+                includeNumbers = true,
+                includeSymbols = false,
+            )
+        assertTrue(policy.matches(string))
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "rogerRoger123??!=_22",
+            "roger_killmanROGE.,R_4434",
+            "tHis_i342=\$s_A_te22st",
+        ],
+    )
+    fun `can validate lowercase, uppercase, number, and symbol configuration`(string: String) {
+        val policy =
+            CharacterPolicy(
+                minLength = minLength,
+                includeLowercase = true,
+                includeUppercase = true,
+                includeNumbers = true,
+                includeSymbols = true,
+            )
+        assertTrue(policy.matches(string))
     }
 }

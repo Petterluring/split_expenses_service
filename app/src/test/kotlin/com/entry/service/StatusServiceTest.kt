@@ -11,7 +11,6 @@ import kotlin.test.assertEquals
 
 @ExtendWith(MockitoExtension::class)
 class StatusServiceTest {
-
     @Mock
     lateinit var statusRepository: StatusRepository
 
@@ -21,7 +20,6 @@ class StatusServiceTest {
     fun setUp() {
         statusService = StatusService(statusRepository)
     }
-
 
     @Test
     fun `can identify mongo status as up`() {
@@ -39,6 +37,5 @@ class StatusServiceTest {
 
         val dto = statusService.getDbStatus()
         assertEquals(dto.status, "MongoDB is not responsive")
-
     }
 }
