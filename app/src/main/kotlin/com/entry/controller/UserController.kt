@@ -1,6 +1,6 @@
 package com.entry.controller
 
-import com.entry.dto.generic.ResponseDto
+import com.entry.dto.generic.MessageResponseDto
 import com.entry.dto.user.CreateUserRequestDto
 import com.entry.service.UserService
 import org.springframework.http.HttpStatus
@@ -18,7 +18,7 @@ class UserController(
     @PostMapping("/create")
     fun createUser(
         @RequestBody createUserRequestDto: CreateUserRequestDto,
-    ): ResponseEntity<ResponseDto> {
+    ): ResponseEntity<MessageResponseDto> {
         val response = userService.create(createUserRequestDto)
         return ResponseEntity
             .status(HttpStatus.CREATED)

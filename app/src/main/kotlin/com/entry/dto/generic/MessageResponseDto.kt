@@ -1,5 +1,5 @@
 package com.entry.dto.generic
 
-data class ResponseDto(
+data class MessageResponseDto(
     val message: String,
 )

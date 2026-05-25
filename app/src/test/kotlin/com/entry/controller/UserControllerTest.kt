@@ -1,6 +1,6 @@
 package com.entry.controller
 
-import com.entry.dto.generic.ResponseDto
+import com.entry.dto.generic.MessageResponseDto
 import com.entry.dto.user.CreateUserRequestDto
 import com.entry.service.UserService
 import org.junit.Test
@@ -32,7 +32,7 @@ class UserControllerTest {
                 ),
             ),
         ).willReturn(
-            ResponseDto(
+            MessageResponseDto(
                 message = "user created",
             ),
         )
