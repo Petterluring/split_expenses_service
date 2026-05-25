@@ -3,7 +3,7 @@ package com.entry.controller
 import com.entry.dto.generic.MessageResponseDto
 import com.entry.dto.user.CreateUserRequestDto
 import com.entry.service.UserService
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest

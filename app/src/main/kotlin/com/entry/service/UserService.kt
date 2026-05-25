@@ -3,7 +3,6 @@ package com.entry.service
 import com.entry.dto.generic.MessageResponseDto
 import com.entry.dto.user.CreateUserRequestDto
 import com.entry.exception.InvalidRequestException
-import com.entry.service.component.CharacterPolicy
 import org.springframework.stereotype.Service
 
 @Service
