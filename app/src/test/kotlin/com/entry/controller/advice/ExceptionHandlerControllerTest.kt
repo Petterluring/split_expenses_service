@@ -1,5 +1,6 @@
 package com.entry.controller.advice
 
+import com.entry.exception.DatabaseException
 import com.entry.exception.InvalidRequestException
 import com.entry.exception.ResourceAlreadyExistsException
 import org.junit.jupiter.api.Test
@@ -58,6 +59,27 @@ class ExceptionHandlerControllerTest {
                 jsonPath("$.message") { value("Resource already exists") }
             }
     }
+
+    @Test
+    fun `test handle database exception`() {
+        mockMvc
+            .get("/test/service-unavailable-error")
+            .andExpect {
+                status { isServiceUnavailable() }
+                jsonPath("$.code") { value(503) }
+                jsonPath("$.error") { value("Service Unavailable") }
+                jsonPath("$.message") { value("Database error") }
+            }
+
+        mockMvc
+            .get("/test/service-unavailable-error-no-message")
+            .andExpect {
+                status { isServiceUnavailable() }
+                jsonPath("$.code") { value(503) }
+                jsonPath("$.error") { value("Service Unavailable") }
+                jsonPath("$.message") { value("Database is temporarily unavailable") }
+            }
+    }
 }
 
 @RestController
@@ -73,4 +95,10 @@ class TestController {
 
     @GetMapping("/test/invalid-request-error-no-message")
     fun getInvalidRequestErrorNoMessage(): Unit = throw InvalidRequestException()
+
+    @GetMapping("/test/service-unavailable-error")
+    fun getServiceUnavailableError(): Unit = throw DatabaseException("Database error")
+
+    @GetMapping("/test/service-unavailable-error-no-message")
+    fun getServiceUnavailableErrorNoMessage(): Unit = throw DatabaseException()
 }
