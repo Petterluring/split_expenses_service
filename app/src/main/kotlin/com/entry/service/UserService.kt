@@ -20,9 +20,9 @@ class UserService(
         }
 
         if (passwordPolicy.matches(user.password) || usernamePolicy.matches(user.username)) {
-            val policies = "${passwordPolicy.toString()}\n${usernamePolicy.toString()}"
+            val policies = "$passwordPolicy\n$usernamePolicy"
             throw InvalidRequestException(
-                "Username or password is invalid. These must comply with the following policies:\n${policies}",
+                "Username or password is invalid. These must comply with the following character policies:\n$policies",
             )
         }
 

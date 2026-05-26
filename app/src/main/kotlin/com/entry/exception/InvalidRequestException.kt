@@ -1,5 +1,5 @@
 package com.entry.exception
 
 class InvalidRequestException(
-    message: String,
+    message: String? = null,
 ) : RuntimeException(message)
