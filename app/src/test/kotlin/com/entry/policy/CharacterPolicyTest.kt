@@ -1,4 +1,4 @@
-package com.entry.characterpolicy
+package com.entry.policy
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

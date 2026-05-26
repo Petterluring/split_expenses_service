@@ -1,13 +1,14 @@
 package com.entry.configuration
 
-import com.entry.characterpolicy.CharacterPolicy
+import com.entry.policy.CharacterPolicy
+import com.entry.policy.Policy
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
 class CharacterPolicyConfiguration {
     @Bean
-    fun passwordPolicy(): CharacterPolicy =
+    fun passwordPolicy(): Policy<String> =
         CharacterPolicy(
             minLength = 8,
             policyName = "Password policy",
@@ -18,7 +19,7 @@ class CharacterPolicyConfiguration {
         )
 
     @Bean
-    fun usernamePolicy(): CharacterPolicy =
+    fun usernamePolicy(): Policy<String> =
         CharacterPolicy(
             minLength = 4,
             policyName = "Username policy",

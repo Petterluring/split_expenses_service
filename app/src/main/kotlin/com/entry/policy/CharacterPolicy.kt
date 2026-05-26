@@ -1,4 +1,4 @@
-package com.entry.characterpolicy
+package com.entry.policy
 
 /**
  * Allows the user to specify a policy for what characters are allowed in a string.
@@ -12,15 +12,12 @@ class CharacterPolicy(
     private val includeUppercase: Boolean = true,
     private val includeNumbers: Boolean = true,
     private val includeSymbols: Boolean = true,
-) {
+) : Policy<String> {
     private val lowercase = "a-z"
     private val uppercase = "A-Z"
     private val numbers = "0-9"
     private var symbols = "?,.!@#$%&*=_-(){}[]"
     private val regex: Regex
-
-    val regexPattern: String
-        get() = regex.pattern
 
     init {
         require(minLength > 0) { "minlength must be greater than 0" }
@@ -37,7 +34,7 @@ class CharacterPolicy(
         regex = Regex(regexPattern)
     }
 
-    fun matches(str: String): Boolean = regex.matches(str)
+    override fun matches(input: String): Boolean = regex.matches(input)
 
     override fun toString(): String {
         val sb = StringBuilder()
