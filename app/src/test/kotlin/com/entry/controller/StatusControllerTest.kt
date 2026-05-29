@@ -2,30 +2,43 @@ package com.entry.controller
 
 import com.entry.dto.StatusDto
 import com.entry.service.StatusService
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.test.web.servlet.client.RestTestClient
+import org.springframework.test.web.servlet.client.expectBody
+import kotlin.test.assertEquals
 
-@WebMvcTest(controllers = [StatusController::class])
+@ExtendWith(MockitoExtension::class)
 class StatusControllerTest {
-    @Autowired
-    private lateinit var mvc: MockMvc
+    private lateinit var client: RestTestClient
 
-    @MockitoBean
+    @Mock
     private lateinit var statusService: StatusService
+
+    @BeforeEach
+    fun setUp() {
+        val controller = StatusController(statusService)
+        client = RestTestClient.bindToController(controller).build()
+    }
 
     @Test
     fun `can get status`() {
-        mvc
-            .perform(get("/status/server"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.status").value("Boot Spring server is UP"))
+        val result =
+            client
+                .get()
+                .uri("/status/server")
+                .exchange()
+                .expectStatus()
+                .isOk
+                .expectBody<StatusDto>()
+                .returnResult()
+                .responseBody
+
+        assertEquals("Boot Spring server is UP", result?.status)
     }
 
     @Test
@@ -37,9 +50,17 @@ class StatusControllerTest {
                 ),
             )
 
-        mvc
-            .perform(get("/status/database"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.status").value("MongoDB server is UP"))
+        val result =
+            client
+                .get()
+                .uri("/status/database")
+                .exchange()
+                .expectStatus()
+                .isOk
+                .expectBody<StatusDto>()
+                .returnResult()
+                .responseBody
+
+        assertEquals("MongoDB server is UP", result?.status)
     }
 }

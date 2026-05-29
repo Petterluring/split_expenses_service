@@ -3,24 +3,29 @@ package com.entry.controller
 import com.entry.dto.generic.MessageResponseDto
 import com.entry.dto.user.CreateUserRequestDto
 import com.entry.service.UserService
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.http.MediaType
-import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.client.RestTestClient
+import org.springframework.test.web.servlet.client.expectBody
+import kotlin.test.assertEquals
 
-@WebMvcTest(controllers = [UserController::class])
+@ExtendWith(MockitoExtension::class)
 class UserControllerTest {
-    @Autowired
-    private lateinit var mockMvc: MockMvc
+    private lateinit var client: RestTestClient
 
-    @MockitoBean
+    @Mock
     private lateinit var userService: UserService
+
+    @BeforeEach
+    fun setUp() {
+        val controller = UserController(userService)
+        client = RestTestClient.bindToController(controller).build()
+    }
 
     @Test
     fun `can create new user`() {
@@ -37,19 +42,25 @@ class UserControllerTest {
             ),
         )
 
-        mockMvc
-            .perform(
-                post("/users/create")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        """
-                        {
-                          "username": "cat",
-                          "password": "cat123"
-                        }
-                        """.trimIndent(),
-                    ),
-            ).andExpect(status().isCreated)
-            .andExpect(jsonPath("$.message").value("user created"))
+        val result =
+            client
+                .post()
+                .uri("/users/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(
+                    """
+                    {
+                      "username": "cat",
+                      "password": "cat123"
+                    }
+                    """.trimIndent(),
+                ).exchange()
+                .expectStatus()
+                .isCreated
+                .expectBody<MessageResponseDto>()
+                .returnResult()
+                .responseBody
+
+        assertEquals("user created", result?.message)
     }
 }

@@ -1,89 +1,128 @@
 package com.entry.controller.advice
 
+import com.entry.dto.generic.ErrorResponseDto
 import com.entry.exception.DatabaseException
 import com.entry.exception.InvalidRequestException
 import com.entry.exception.ResourceAlreadyExistsException
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.context.annotation.Import
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
+import org.springframework.http.HttpStatus
+import org.springframework.test.web.servlet.client.RestTestClient
+import org.springframework.test.web.servlet.client.expectBody
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
+import kotlin.test.assertEquals
 
-@WebMvcTest(TestController::class)
-@Import(ExceptionHandlerController::class)
 class ExceptionHandlerControllerTest {
-    @Autowired
-    private lateinit var mockMvc: MockMvc
+    private lateinit var client: RestTestClient
+
+    @BeforeEach
+    fun setUp() {
+        client = RestTestClient.bindToController(TestController(), ExceptionHandlerController()).build()
+    }
 
     @Test
     fun `test handle invalid request exception`() {
-        mockMvc
-            .get("/test/invalid-request-error")
-            .andExpect {
-                status { isBadRequest() }
-                jsonPath("$.code") { value(400) }
-                jsonPath("$.error") { value("Bad Request") }
-                jsonPath("$.message") { value("Request is invalid") }
-            }
+        var result =
+            client
+                .get()
+                .uri("/test/invalid-request-error")
+                .exchange()
+                .expectStatus()
+                .isBadRequest
+                .expectBody<ErrorResponseDto>()
+                .returnResult()
+                .responseBody
 
-        mockMvc
-            .get("/test/invalid-request-error-no-message")
-            .andExpect {
-                status { isBadRequest() }
-                jsonPath("$.code") { value(400) }
-                jsonPath("$.error") { value("Bad Request") }
-                jsonPath("$.message") { value("Invalid request") }
-            }
+        assertEquals(400, result?.code)
+        assertEquals("Bad Request", result?.error)
+        assertEquals("Request is invalid", result?.message)
+
+        result =
+            client
+                .get()
+                .uri("/test/invalid-request-error-no-message")
+                .exchange()
+                .expectStatus()
+                .isBadRequest
+                .expectBody<ErrorResponseDto>()
+                .returnResult()
+                .responseBody
+
+        assertEquals(400, result?.code)
+        assertEquals("Bad Request", result?.error)
+        assertEquals("Invalid request", result?.message)
     }
 
     @Test
     fun `test handle resource already exists exception`() {
-        mockMvc
-            .get("/test/resource-exists-error")
-            .andExpect {
-                status { isConflict() }
-                jsonPath("$.code") { value(409) }
-                jsonPath("$.error") { value("Conflict") }
-                jsonPath("$.message") { value("Resource already existsS") }
-            }
+        var result =
+            client
+                .get()
+                .uri("/test/resource-exists-error")
+                .exchange()
+                .expectStatus()
+                .isEqualTo(HttpStatus.CONFLICT)
+                .expectBody<ErrorResponseDto>()
+                .returnResult()
+                .responseBody
 
-        mockMvc
-            .get("/test/resource-exists-error-no-message")
-            .andExpect {
-                status { isConflict() }
-                jsonPath("$.code") { value(409) }
-                jsonPath("$.error") { value("Conflict") }
-                jsonPath("$.message") { value("Resource already exists") }
-            }
+        assertEquals(409, result?.code)
+        assertEquals("Conflict", result?.error)
+        assertEquals("Resource already existsS", result?.message)
+
+        result =
+            client
+                .get()
+                .uri("/test/resource-exists-error-no-message")
+                .exchange()
+                .expectStatus()
+                .isEqualTo(HttpStatus.CONFLICT)
+                .expectBody<ErrorResponseDto>()
+                .returnResult()
+                .responseBody
+
+        assertEquals(409, result?.code)
+        assertEquals("Conflict", result?.error)
+        assertEquals("Resource already exists", result?.message)
     }
 
     @Test
     fun `test handle database exception`() {
-        mockMvc
-            .get("/test/service-unavailable-error")
-            .andExpect {
-                status { isServiceUnavailable() }
-                jsonPath("$.code") { value(503) }
-                jsonPath("$.error") { value("Service Unavailable") }
-                jsonPath("$.message") { value("Database error") }
-            }
+        var result =
+            client
+                .get()
+                .uri("/test/service-unavailable-error")
+                .exchange()
+                .expectStatus()
+                .isEqualTo(HttpStatus.SERVICE_UNAVAILABLE)
+                .expectBody<ErrorResponseDto>()
+                .returnResult()
+                .responseBody
 
-        mockMvc
-            .get("/test/service-unavailable-error-no-message")
-            .andExpect {
-                status { isServiceUnavailable() }
-                jsonPath("$.code") { value(503) }
-                jsonPath("$.error") { value("Service Unavailable") }
-                jsonPath("$.message") { value("Database is temporarily unavailable") }
-            }
+        assertEquals(503, result?.code)
+        assertEquals("Service Unavailable", result?.error)
+        assertEquals("Database error", result?.message)
+
+        result =
+            client
+                .get()
+                .uri("/test/service-unavailable-error-no-message")
+                .exchange()
+                .expectStatus()
+                .isEqualTo(HttpStatus.SERVICE_UNAVAILABLE)
+                .expectBody<ErrorResponseDto>()
+                .returnResult()
+                .responseBody
+
+        assertEquals(503, result?.code)
+        assertEquals("Service Unavailable", result?.error)
+        assertEquals("Database is temporarily unavailable", result?.message)
     }
 }
 
 @RestController
-class TestController {
+private class TestController {
     @GetMapping("/test/resource-exists-error")
     fun getResourceExistError(): Unit = throw ResourceAlreadyExistsException("Resource already existsS")
 

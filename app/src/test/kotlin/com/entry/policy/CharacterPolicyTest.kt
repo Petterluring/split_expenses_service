@@ -120,7 +120,7 @@ class CharacterPolicyTest {
         strings = [
             "rogerRoger123??!=_22",
             "roger_killmanROGE.,R_4434",
-            "tHis_i342=\$s_A_te22st",
+            $$"tHis_i342=$s_A_te22st",
         ],
     )
     fun `can validate lowercase, uppercase, number, and symbol configuration`(string: String) {
