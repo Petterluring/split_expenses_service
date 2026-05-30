@@ -2,6 +2,7 @@ package com.entry.service
 
 import com.entry.dto.generic.MessageResponseDto
 import com.entry.dto.user.CreateUserRequestDto
+import com.entry.dto.user.DeleteUserRequestDto
 import com.entry.exception.DatabaseException
 import com.entry.exception.InvalidRequestException
 import com.entry.exception.ResourceAlreadyExistsException
@@ -56,6 +57,12 @@ class UserService(
 
         return MessageResponseDto(
             message = "User ${createUserRequest.username} created",
+        )
+    }
+
+    fun delete(deleteUserRequest: DeleteUserRequestDto): MessageResponseDto {
+        return MessageResponseDto(
+            message = "Not implemented yet"
         )
     }
 }

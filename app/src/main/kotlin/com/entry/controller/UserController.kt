@@ -2,6 +2,7 @@ package com.entry.controller
 
 import com.entry.dto.generic.MessageResponseDto
 import com.entry.dto.user.CreateUserRequestDto
+import com.entry.dto.user.DeleteUserRequestDto
 import com.entry.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -22,6 +23,16 @@ class UserController(
         val response = userService.create(createUserRequestDto)
         return ResponseEntity
             .status(HttpStatus.CREATED)
+            .body(response)
+    }
+
+    @PostMapping("/delete")
+    fun deleteUser(
+        @RequestBody deleteUserRequestDto: DeleteUserRequestDto,
+    ): ResponseEntity<MessageResponseDto> {
+        val response = userService.delete(deleteUserRequestDto)
+        return ResponseEntity
+            .status(HttpStatus.OK)
             .body(response)
     }
 }
