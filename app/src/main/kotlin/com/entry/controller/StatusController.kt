@@ -9,18 +9,14 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/status")
 class StatusController(
-    private val statusService: StatusService
+    private val statusService: StatusService,
 ) {
-
     @GetMapping("/server")
-    fun status(): StatusDto {
-        return StatusDto(
-            status = "Boot Spring server is UP"
+    fun status(): StatusDto =
+        StatusDto(
+            status = "Boot Spring server is UP",
         )
-    }
 
     @GetMapping("/database")
-    fun dbStatus(): StatusDto {
-        return statusService.getDbStatus()
-    }
+    fun dbStatus(): StatusDto = statusService.getDbStatus()
 }

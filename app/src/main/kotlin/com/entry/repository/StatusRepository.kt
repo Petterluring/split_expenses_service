@@ -1,7 +1,7 @@
 package com.entry.repository
 
 import com.mongodb.MongoException
-import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Repository
 
 /**
@@ -12,13 +12,11 @@ import org.springframework.stereotype.Repository
 class StatusRepository(
     private val mongoTemplate: MongoTemplate,
 ) {
-
-    fun testMongoConnection(): Boolean {
-        return try {
+    fun testMongoConnection(): Boolean =
+        try {
             val result = mongoTemplate.executeCommand("{ ping: 1 }")
             result.get("ok") == 1.0
         } catch (_: MongoException) {
             false
         }
-    }
 }
