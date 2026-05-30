@@ -13,10 +13,6 @@ class UserRepositoryTest : TestcontainerResources {
     @Autowired
     lateinit var userRepository: UserRepository
 
-    @Test
-    fun test() {
-    }
-
     @BeforeEach
     fun setup() {
         userRepository.deleteAll()

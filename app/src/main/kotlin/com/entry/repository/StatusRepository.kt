@@ -5,8 +5,7 @@ import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Repository
 
 /**
- * Fake repository that simulates communication with a database
- * by simply returning a prefixed value. This repository is for demonstrative purposes.
+ * Repository for testing mongodb server connection
  */
 @Repository
 class StatusRepository(
@@ -15,7 +14,7 @@ class StatusRepository(
     fun testMongoConnection(): Boolean =
         try {
             val result = mongoTemplate.executeCommand("{ ping: 1 }")
-            result.get("ok") == 1.0
+            result["ok"] == 1.0
         } catch (_: MongoException) {
             false
         }
