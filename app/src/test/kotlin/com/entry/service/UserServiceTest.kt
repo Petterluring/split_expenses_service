@@ -110,7 +110,7 @@ class UserServiceTest {
         val userService = buildUserService(matchBoolUsername = true, matchBoolPassword = true)
 
         given(
-            userRepository.deleteByUsernameAndPassword(
+            userRepository.deleteByUsernameAndHashedPassword(
                 username = "cat",
                 hashedPassword = "cat_password",
             ),
@@ -132,7 +132,7 @@ class UserServiceTest {
         val userService = buildUserService(matchBoolUsername = true, matchBoolPassword = true)
 
         given(
-            userRepository.deleteByUsernameAndPassword(
+            userRepository.deleteByUsernameAndHashedPassword(
                 username = "cat",
                 hashedPassword = "cat_password",
             ),

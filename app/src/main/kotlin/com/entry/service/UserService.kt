@@ -55,7 +55,7 @@ class UserService(
         var deletedUsers: Long
         try {
             deletedUsers =
-                userRepository.deleteByUsernameAndPassword(
+                userRepository.deleteByUsernameAndHashedPassword(
                     username = deleteUserRequest.username,
                     hashedPassword = hashedPassword,
                 )

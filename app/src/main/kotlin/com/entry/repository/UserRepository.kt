@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository
 interface UserRepository : MongoRepository<User, String> {
     fun existsByUsername(username: String): Boolean
 
-    fun deleteByUsernameAndPassword(
+    fun deleteByUsernameAndHashedPassword(
         username: String,
         hashedPassword: String,
     ): Long
