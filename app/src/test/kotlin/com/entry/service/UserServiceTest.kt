@@ -1,6 +1,7 @@
 package com.entry.service
 
 import com.entry.dto.user.CreateUserRequestDto
+import com.entry.dto.user.DeleteUserRequestDto
 import com.entry.exception.InvalidRequestException
 import com.entry.exception.ResourceAlreadyExistsException
 import com.entry.policy.Policy
@@ -102,6 +103,54 @@ class UserServiceTest {
         val result = userService.create(userCreateRequest)
 
         assertEquals(result.message, "User ${userCreateRequest.username} created")
+    }
+
+    @Test
+    fun `can delete user`() {
+        val userService = buildUserService(matchBoolUsername = true, matchBoolPassword = true)
+
+        given(
+            userRepository.deleteByUsernameAndHashedPassword(
+                username = "cat",
+                hashedPassword = "cat_password",
+            ),
+        ).willReturn(1L)
+
+        val deleteUserRequest =
+            DeleteUserRequestDto(
+                username = "cat",
+                password = "cat_password",
+            )
+
+        val result = userService.delete(deleteUserRequest)
+
+        assertEquals(result.message, "User ${deleteUserRequest.username} deleted")
+    }
+
+    @Test
+    fun `can identify if username is non-existent or if password is incorrect`() {
+        val userService = buildUserService(matchBoolUsername = true, matchBoolPassword = true)
+
+        given(
+            userRepository.deleteByUsernameAndHashedPassword(
+                username = "cat",
+                hashedPassword = "cat_password",
+            ),
+        ).willReturn(0L)
+
+        val deleteUserRequest =
+            DeleteUserRequestDto(
+                username = "cat",
+                password = "cat_password",
+            )
+
+        val error =
+            assertThrows<InvalidRequestException> {
+                userService.delete(deleteUserRequest)
+            }
+
+        assertTrue(error.message!!.contains("is non-existent"))
+        assertTrue(error.message!!.contains("incorrect password"))
     }
 
     private fun buildUserService(

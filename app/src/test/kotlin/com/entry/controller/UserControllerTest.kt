@@ -2,6 +2,7 @@ package com.entry.controller
 
 import com.entry.dto.generic.MessageResponseDto
 import com.entry.dto.user.CreateUserRequestDto
+import com.entry.dto.user.DeleteUserRequestDto
 import com.entry.service.UserService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -62,5 +63,42 @@ class UserControllerTest {
                 .responseBody
 
         assertEquals("user created", result?.message)
+    }
+
+    @Test
+    fun `can delete user`() {
+        given(
+            userService.delete(
+                DeleteUserRequestDto(
+                    username = "cat",
+                    password = "cat123",
+                ),
+            ),
+        ).willReturn(
+            MessageResponseDto(
+                message = "user deleted",
+            ),
+        )
+
+        val result =
+            client
+                .post()
+                .uri("/users/delete")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(
+                    """
+                    {
+                      "username": "cat",
+                      "password": "cat123"
+                    }
+                    """.trimIndent(),
+                ).exchange()
+                .expectStatus()
+                .isOk
+                .expectBody<MessageResponseDto>()
+                .returnResult()
+                .responseBody
+
+        assertEquals("user deleted", result?.message)
     }
 }

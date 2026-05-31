@@ -2,6 +2,7 @@ package com.entry.service
 
 import com.entry.dto.generic.MessageResponseDto
 import com.entry.dto.user.CreateUserRequestDto
+import com.entry.dto.user.DeleteUserRequestDto
 import com.entry.exception.DatabaseException
 import com.entry.exception.InvalidRequestException
 import com.entry.exception.ResourceAlreadyExistsException
@@ -21,24 +22,11 @@ class UserService(
     private val userRepository: UserRepository,
 ) {
     fun create(createUserRequest: CreateUserRequestDto): MessageResponseDto {
-        if (createUserRequest.username.isBlank() || createUserRequest.password.isBlank()) {
-            throw InvalidRequestException("Username or password is missing")
-        }
+        blankExceptionCheck(createUserRequest.username, createUserRequest.password)
+        policyExceptionCheck(createUserRequest.username, createUserRequest.password)
 
-        if (!passwordPolicy.matches(createUserRequest.password) || !usernamePolicy.matches(createUserRequest.username)) {
-            val policies = "$passwordPolicy\n$usernamePolicy"
-            throw InvalidRequestException(
-                "Username or password is invalid. These must comply with the following character policies:\n$policies",
-            )
-        }
-
-        try {
-            val exists = userRepository.existsByUsername(createUserRequest.username)
-            if (exists) {
-                throw ResourceAlreadyExistsException("User ${createUserRequest.username} already exists")
-            }
-        } catch (e: DataAccessException) {
-            throw DatabaseException("Unable to check if username exists: ${e.message}")
+        if (userExists(createUserRequest.username)) {
+            throw ResourceAlreadyExistsException("User ${createUserRequest.username} already exists")
         }
 
         val hashedPassword = createUserRequest.password // Hash password
@@ -57,5 +45,59 @@ class UserService(
         return MessageResponseDto(
             message = "User ${createUserRequest.username} created",
         )
+    }
+
+    fun delete(deleteUserRequest: DeleteUserRequestDto): MessageResponseDto {
+        blankExceptionCheck(deleteUserRequest.username, deleteUserRequest.password)
+
+        val hashedPassword = deleteUserRequest.password // Hash password
+
+        var deletedUsers: Long
+        try {
+            deletedUsers =
+                userRepository.deleteByUsernameAndHashedPassword(
+                    username = deleteUserRequest.username,
+                    hashedPassword = hashedPassword,
+                )
+        } catch (e: DataAccessException) {
+            throw DatabaseException("Failed to delete user ${deleteUserRequest.username} from database: ${e.message}")
+        }
+
+        return if (deletedUsers >= 1L) {
+            MessageResponseDto(
+                message = "User ${deleteUserRequest.username} deleted",
+            )
+        } else {
+            throw InvalidRequestException("User ${deleteUserRequest.username} is non-existent or has the incorrect password")
+        }
+    }
+
+    private fun blankExceptionCheck(
+        username: String,
+        password: String,
+    ) {
+        if (username.isBlank() || password.isBlank()) {
+            throw InvalidRequestException("Username or password is missing")
+        }
+    }
+
+    private fun policyExceptionCheck(
+        username: String,
+        password: String,
+    ) {
+        if (!passwordPolicy.matches(password) || !usernamePolicy.matches(username)) {
+            val policies = "$passwordPolicy\n$usernamePolicy"
+            throw InvalidRequestException(
+                "Username or password is invalid. These must comply with the following character policies:\n$policies",
+            )
+        }
+    }
+
+    private fun userExists(username: String): Boolean {
+        try {
+            return userRepository.existsByUsername(username)
+        } catch (e: DataAccessException) {
+            throw DatabaseException("Unable to check if username exists: ${e.message}")
+        }
     }
 }

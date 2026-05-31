@@ -6,16 +6,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.mongodb.test.autoconfigure.DataMongoTest
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @DataMongoTest
 class UserRepositoryTest : TestcontainerResources {
     @Autowired
     lateinit var userRepository: UserRepository
-
-    @Test
-    fun test() {
-    }
 
     @BeforeEach
     fun setup() {
@@ -35,5 +32,37 @@ class UserRepositoryTest : TestcontainerResources {
         val exists = userRepository.existsByUsername("cat")
 
         assertTrue { exists }
+    }
+
+    @Test
+    fun `can delete user`() {
+        val user =
+            User(
+                username = "cat",
+                hashedPassword = "cat_password",
+            )
+
+        userRepository.save(user)
+
+        var deletedUsers =
+            userRepository.deleteByUsernameAndHashedPassword(
+                username = "incorrect username",
+                hashedPassword = "cat_password",
+            )
+        assertEquals(deletedUsers, 0L)
+
+        deletedUsers =
+            userRepository.deleteByUsernameAndHashedPassword(
+                username = "cat",
+                hashedPassword = "incorrect password",
+            )
+        assertEquals(deletedUsers, 0L)
+
+        deletedUsers =
+            userRepository.deleteByUsernameAndHashedPassword(
+                username = "cat",
+                hashedPassword = "cat_password",
+            )
+        assertEquals(deletedUsers, 1L)
     }
 }
