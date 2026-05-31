@@ -44,23 +44,25 @@ class UserRepositoryTest : TestcontainerResources {
 
         userRepository.save(user)
 
-
-        var deletedUsers = userRepository.deleteByUsernameAndHashedPassword(
-            username = "incorrect username",
-            hashedPassword = "cat_password"
-        )
+        var deletedUsers =
+            userRepository.deleteByUsernameAndHashedPassword(
+                username = "incorrect username",
+                hashedPassword = "cat_password",
+            )
         assertEquals(deletedUsers, 0L)
 
-        deletedUsers = userRepository.deleteByUsernameAndHashedPassword(
-            username = "cat",
-            hashedPassword = "incorrect password"
-        )
+        deletedUsers =
+            userRepository.deleteByUsernameAndHashedPassword(
+                username = "cat",
+                hashedPassword = "incorrect password",
+            )
         assertEquals(deletedUsers, 0L)
 
-        deletedUsers = userRepository.deleteByUsernameAndHashedPassword(
-            username = "cat",
-            hashedPassword = "cat_password"
-        )
+        deletedUsers =
+            userRepository.deleteByUsernameAndHashedPassword(
+                username = "cat",
+                hashedPassword = "cat_password",
+            )
         assertEquals(deletedUsers, 1L)
     }
 }
